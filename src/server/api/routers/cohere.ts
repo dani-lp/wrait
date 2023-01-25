@@ -7,12 +7,16 @@ export const cohereRouter = createTRPCRouter({
   generateScript: publicProcedure
     .input(z.object({ title: z.string() }))
     .query(async ({ input }) => {
-      const { body, statusCode } = await getScriptIndex(input.title)
+      const { body, statusCode } = await getScriptIndex(input.title);
 
       if (statusCode !== 200) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "Bad Request" });
       }
 
-      return body.generations[0]?.text;
+      const generations = body.generations[0]?.text;
+
+      return generations?.split("\n")
+        .slice(1, 11)
+        .map((line) => line.replace("  ", ""));
     }),
 })
