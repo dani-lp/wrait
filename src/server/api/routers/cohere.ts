@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { getScriptIndex } from "../../../services/cohere";
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure } from "../trpc";
 
 export const cohereRouter = createTRPCRouter({
   generateScript: publicProcedure
@@ -17,6 +17,6 @@ export const cohereRouter = createTRPCRouter({
 
       return generations?.split("\n")
         .slice(1, 11)
-        .map((line) => line.replace("  ", ""));
+        .map((line) => line.replace("  ", "")) ?? [];
     }),
 })

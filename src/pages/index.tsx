@@ -1,17 +1,28 @@
 import * as React from "react";
 import { type NextPage } from "next";
 import Head from "next/head";
-import { useQuery } from "@tanstack/react-query";
-
-
-
+import { api } from "../utils/api";
 
 const Home: NextPage = () => {
   const [title, setTitle] = React.useState<string>('How inflation works explained');
-  const [index, setIndex] = React.useState<string[]>([]);
-  const { data, isLoading, error, refetch } = useQuery(['getScript'], () =>
-    fetch(`/api/cohere/${title}`).then(res => res.json()), { enabled: false });
+  const {
+    data,
+    isLoading,
+    isFetched,
+    isError,
+    error,
+    refetch
+  } = api.cohere.generateScript.useQuery({ title }, { enabled: false });
 
+  const handleClick = () => {
+    refetch()
+      .then(() => console.log(data))
+      .catch((error) => console.log(error));
+  };
+
+  if (isError) {
+    return <p>{error?.message}</p>;
+  }
 
   return (
     <>
@@ -28,11 +39,18 @@ const Home: NextPage = () => {
         />
         <button
           className="bg-blue-400 p-2 rounded-md"
-          onClick={() => refetch()}
+          onClick={handleClick}
         >
           Get Script Index
         </button>
-
+        {isLoading && <p>Loading...</p>}
+        {isFetched && !isError && data && (
+          <li className="list-none">
+            {data.map((item, index) => (
+              <p key={index}>{item}</p>
+            ))}
+          </li>
+        )}
       </main>
     </>
   );
